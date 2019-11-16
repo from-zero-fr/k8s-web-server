@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: privatebin
+  namespace: fz-privatebin
+spec:
+  selector:
+    matchLabels:
+      app: privatebin
+  template:
+    metadata:
+      labels:
+        app: privatebin
+    spec:
+      volumes:
+      - name: config
+        configMap:
+          name: privatebin-config
+      - name: data
+        hostPath:
+          path: /data/privatebin
+          type: Directory
+      containers:
+      - name: privatebin
+        image: privatebin/nginx-fpm-alpine
+        volumeMounts:
+        - name: config
+          mountPath: /srv/cfg/conf.php
+          subPath: conf.php
+        - name: data
+          mountPath: "/srv/data"
+        resources:
+          limits:
+            cpu: "250m"
+            memory: "128Mi"
